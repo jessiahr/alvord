@@ -23,4 +23,4 @@ erl_crash.dump
 alvord-*.tar
 
 
-./alvord_store
+alvord_store

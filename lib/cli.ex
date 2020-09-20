@@ -10,7 +10,7 @@ defmodule Alvord.CLI do
   end
 
   def route_args(["help"]), do: show_help
-  def route_args(["seed"]), do: Store.seed
+  def route_args(["seed"]), do: Store.seed()
 
   def route_args(["export"]) do
     Profile.export()
@@ -19,9 +19,10 @@ defmodule Alvord.CLI do
 
   def route_args(["inspect" | args]) do
     [name] = args
+
     Store.find(name)
     |> Jason.encode!(pretty: true)
-    |> IO.puts
+    |> IO.puts()
   end
 
   def route_args(args \\ []), do: show_help
