@@ -11,6 +11,7 @@ defmodule Alvord.CLI do
 
   def route_args(["help"]), do: show_help
   def route_args(["seed"]), do: Store.seed()
+  def route_args(["reset"]), do: Store.clear_all_data()
 
   def route_args(["export"]) do
     Profile.export()
@@ -42,8 +43,17 @@ defmodule Alvord.CLI do
     """)
 
     Store.list()
-    |> Enum.each(fn block ->
-      IO.puts("-- #{block.type}\t\t#{block.name}")
+    |> Enum.group_by(fn block -> block.meta |> Map.get("package") end)
+    |> Enum.each(fn {package_name, blocks} ->
+      IO.puts("\nPackage: #{package_name}")
+
+      Enum.each(blocks, fn block ->
+        IO.puts(
+          "-- #{String.pad_trailing(block.name, 20)}#{String.pad_trailing(block.type, 10)}  [#{
+            String.slice(block.script, 0..100) |> String.replace("\n", "\\n ")
+          }]"
+        )
+      end)
     end)
   end
 end

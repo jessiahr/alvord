@@ -1,12 +1,25 @@
 defmodule Alvord.Store do
   require Logger
   use GenServer
+  alias Alvord.Repo
 
   @table_name :alvord_store
+  def dets_path do
+    "#{storage_path}/#{@table_name}"
+  end
+
+  def storage_path do
+    "#{System.user_home()}/.alvord"
+  end
 
   def start_link(_) do
-    file_path = '#{Application.get_env(:pinger, :storage_path)}#{@table_name}'
-    {:ok, _} = :dets.open_file(@table_name, type: :set, auto_save: 10_000, file: file_path)
+    unless File.exists?(storage_path) do
+      File.mkdir(storage_path)
+    end
+
+    {:ok, _} =
+      :dets.open_file(@table_name, type: :set, auto_save: 10_000, file: String.to_atom(dets_path))
+
     GenServer.start_link(__MODULE__, nil, name: __MODULE__)
   end
 
@@ -46,40 +59,7 @@ defmodule Alvord.Store do
   end
 
   def seed do
-    [
-      %{
-        type: "alias",
-        name: "alvord",
-        script: "/home/jessiahr/Desktop/dev/alvord/alvord"
-      },
-      %{
-        type: :function,
-        name: "show_port",
-        script: """
-        pid_found=$(netstat -vanp tcp | grep $1 | awk '{print $9}')
-        echo '$pid_found'
-        ps -p $pid_found
-        """
-      },
-      %{
-        type: :function,
-        name: "clear_port",
-        script: """
-        pid_found=$(netstat -vanp tcp | grep $1 | awk '{print $9}')
-        kill -9 $pid_found
-        """
-      },
-      %{
-        type: :alias,
-        name: "mc",
-        script: "iex -S mix"
-      },
-      %{
-        type: :config,
-        name: "ALVORD_RENDERED_AT",
-        script: "#{DateTime.utc_now() |> DateTime.to_unix()}"
-      }
-    ]
+    Repo.repo_packages()
     |> Enum.map(fn block ->
       block
       |> Block.from_map()
