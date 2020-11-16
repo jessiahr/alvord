@@ -6,7 +6,7 @@ defmodule Alvord.StoreTest do
   @test_alias %Block{
     type: "alias",
     name: "some_test",
-    script: "iex -S mix"
+    value: "iex -S mix"
   }
 
   setup do
@@ -20,8 +20,21 @@ defmodule Alvord.StoreTest do
     assert Store.push(%Block{
              type: :alias,
              name: "mc",
-             script: "iex -S mix"
+             value: "iex -S mix"
            }) == :ok
+  end
+
+  test "saves a block attribute" do
+    assert Store.push(%Block{
+             type: :attribute,
+             name: "fake.key",
+             value: nil,
+             meta: %{
+               value: "a;lsakdjfal;kdfjalkdsjf"
+             }
+           }) == :ok
+
+    Store.find("some_test")
   end
 
   test "gets a block" do
