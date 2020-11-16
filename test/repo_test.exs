@@ -4,7 +4,7 @@ defmodule Alvord.RepoTest do
   alias Alvord.Store
   doctest Repo
 
-  test "it gets a package from remote" do
-    assert Repo.get_file_from_repo("jessiahr/alvord") == 1
-  end
+  # test "it gets a package from remote" do
+  #   assert Repo.get_file_from_repo("jessiahr/alvord") == 1
+  # end
 end

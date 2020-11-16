@@ -29,7 +29,7 @@ defmodule Alvord.Repo do
 
   def read_packages(path \\ "./packages/local.json") do
     with {:ok, body} <- File.read(path),
-         {:ok, package} <- Jason.decode(body) do
+         {:ok, package} <- decode(path, body) do
       meta = %{
         repo: path,
         package: Map.get(package, "name")
@@ -37,7 +37,22 @@ defmodule Alvord.Repo do
 
       blocks =
         Map.get(package, "blocks")
-        |> Enum.map(fn map -> Map.put(map, "meta", meta) |> Block.from_map() end)
+        |> Enum.map(fn block ->
+          local_meta = Map.get(block, "meta") || %{}
+
+          Map.put(block, "meta", Map.merge(local_meta, meta))
+          |> Block.from_map()
+        end)
+    end
+  end
+
+  defp decode(path, body) do
+    case Path.extname(path) do
+      ".yaml" ->
+        YamlElixir.read_from_string(body)
+
+      ".json" ->
+        Jason.decode(body)
     end
   end
 
@@ -53,7 +68,7 @@ defmodule Alvord.Repo do
       if File.dir?("#{packages_path}/#{file}") do
         File.ls!("#{packages_path}/#{file}/")
         |> Enum.filter(fn file ->
-          Path.extname(file) == ".json"
+          Path.extname(file) == ".json" || Path.extname(file) == ".yaml"
         end)
         |> Enum.map(fn json_file ->
           IO.puts("#{file}/#{json_file}")

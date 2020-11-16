@@ -7,13 +7,13 @@ defmodule Alvord.ProfileTest do
   @test_alias %Block{
     type: "alias",
     name: "mc",
-    script: "iex -S mix"
+    value: "iex -S mix"
   }
 
   @test_func %Block{
     type: "function",
     name: "clear_port",
-    script: """
+    value: """
     pid_found=$(netstat -vanp tcp | grep $1 | awk '{print $9}')
     kill -9 $pid_found
     """
@@ -22,7 +22,7 @@ defmodule Alvord.ProfileTest do
   @test_config %Block{
     type: "config",
     name: "ALVORD_TEST",
-    script: "passed"
+    value: "passed"
   }
 
   test "exports a alias" do
