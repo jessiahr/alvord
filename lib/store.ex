@@ -61,9 +61,22 @@ defmodule Alvord.Store do
   def seed do
     Repo.repo_packages()
     |> Enum.map(fn block ->
-      block
-      |> Block.from_map()
-      |> push
+      case find(block.name) do
+        [] ->
+          block
+          |> Block.from_map()
+          |> push
+        [%Block{value: old_value, type: "attribute"}] ->
+          nil
+
+        [%Block{value: old_value}] ->
+          if old_value != block.value do
+            IO.puts "Imported updated block [#{block.name}]"
+            block
+            |> Block.from_map()
+            |> push
+          end
+      end
     end)
   end
 end

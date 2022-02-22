@@ -37,6 +37,11 @@ defmodule Alvord.CLI do
     |> IO.puts()
   end
 
+  def route_args(["todo" | args]) do
+    Todo.handle_args(args)
+  end
+
+
   def route_args(args \\ []), do: show_help
 
   def show_help do
@@ -50,6 +55,7 @@ defmodule Alvord.CLI do
     confingure\t--  configure attributes
     seed\t--  loads and enables hardcoded seeds
     export\t--  compile and output to stdIO all saved blocks
+    todo\t-- track tasks
 
     Active blocks:
     """)

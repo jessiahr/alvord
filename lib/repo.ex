@@ -61,6 +61,7 @@ defmodule Alvord.Repo do
   # end)
 
   def repo_packages do
+    :ok = File.mkdir_p(packages_path)
     {:ok, files} = File.ls(packages_path)
 
     files
