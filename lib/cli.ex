@@ -12,6 +12,17 @@ defmodule Alvord.CLI do
 
   def route_args(["help"]), do: show_help
   def route_args(["seed"]), do: Store.seed()
+
+  def route_args(["repo", "add", uri]) do
+    Alvord.Repo.pull_repo(uri)
+    IO.puts "Repo added: #{uri}"
+  end
+
+  def route_args(["repo", "update"]) do
+    Alvord.Repo.update_all()
+    IO.puts "Done."
+  end
+
   def route_args(["configure"]), do: Attribute.configure()
 
   def route_args(["attribute" | args]) do
@@ -37,6 +48,10 @@ defmodule Alvord.CLI do
     |> IO.puts()
   end
 
+  def route_args(["todo" | args]) do
+    Todo.handle_args(args)
+  end
+
   def route_args(args \\ []), do: show_help
 
   def show_help do
@@ -45,11 +60,14 @@ defmodule Alvord.CLI do
 
     Available commands:
     help\t--  shows this message
+    repo add\t--  add a new repo from url
+    repo update\t--  pull latest version of repos
     ls\t--  list all blocks
     inspect\t--  show details of a block
     confingure\t--  configure attributes
     seed\t--  loads and enables hardcoded seeds
     export\t--  compile and output to stdIO all saved blocks
+    todo\t-- track tasks
 
     Active blocks:
     """)
@@ -57,13 +75,12 @@ defmodule Alvord.CLI do
     Store.list()
     |> Enum.group_by(fn block -> block.meta |> Map.get("package") end)
     |> Enum.each(fn {package_name, blocks} ->
-      IO.puts("\nPackage: #{package_name}")
+      IO.puts("\nPackage: #{package_name}[count: #{Enum.count(blocks)}]")
+
 
       Enum.each(blocks, fn block ->
         IO.puts(
-          "-- #{String.pad_trailing(block.name, 20)}#{String.pad_trailing(block.type, 10)}  [#{
-            String.slice(block.value, 0..100) |> String.replace("\n", "\\n ")
-          }]"
+          "-- #{String.pad_trailing(block.name, 20)}#{String.pad_trailing(block.type, 10)}  [#{String.slice(block.value, 0..100) |> String.replace("\n", "\\n ")}]"
         )
       end)
     end)
