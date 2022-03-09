@@ -1,6 +1,6 @@
 defmodule JsonStore do
   def store_path do
-    Alvord.Store.storage_path <> "/json_store"
+    Alvord.Store.storage_path() <> "/json_store"
   end
 
   def init do

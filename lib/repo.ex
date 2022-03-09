@@ -85,12 +85,20 @@ defmodule Alvord.Repo do
     repo = Git.clone([url, "#{packages_path}/#{repo_uri_to_folder(url)}"])
   end
 
+  def update_all do
+    :ok = File.mkdir_p(packages_path)
+    {:ok, files} = File.ls(packages_path)
+
+    files
+    |> Enum.map(fn file ->
+      if File.dir?("#{packages_path}/#{file}") do
+        repo = Git.new("#{packages_path}/#{file}")
+        |> Git.pull(~w(--rebase origin master))
+      end
+    end)
+    |> List.flatten()
+  end
+
   defp repo_uri_to_folder(uri),
-    do:
-      uri
-      |> String.split(":")
-      |> List.last()
-      |> String.split(".")
-      |> List.first()
-      |> String.replace("/", ":")
+    do: uri |> URI.parse() |> Map.get(:path) |> String.replace("/", "_")
 end

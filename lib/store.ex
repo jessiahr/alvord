@@ -66,12 +66,14 @@ defmodule Alvord.Store do
           block
           |> Block.from_map()
           |> push
+
         [%Block{value: old_value, type: "attribute"}] ->
           nil
 
         [%Block{value: old_value}] ->
           if old_value != block.value do
-            IO.puts "Imported updated block [#{block.name}]"
+            IO.puts("Imported updated block [#{block.name}]")
+
             block
             |> Block.from_map()
             |> push
